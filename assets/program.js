@@ -134,12 +134,26 @@ const b1 = {
         notes: "Belly to wall, ribs down" },
       { id: "dips", name: "Dips", sets: 4, reps: "8", rest: 120, log: "reps",
         notes: "Stay upright-ish, don't sink past 90°" },
+      { id: "bulgarian", name: "Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "reps",
+        unilateral: true, unilateralLabel: "leg", derived: true,
+        notes: "Bodyweight this block. Add reps before you add load.",
+        byWeek: {
+          1: { reps: "10" },
+          2: { reps: "12" },
+          3: { reps: "15" },
+          4: { sets: 2, reps: "15", notes: "Consolidation week — one set fewer." },
+        } },
+      { id: "slrdl", name: "Single-leg Romanian deadlift", sets: 3, reps: "8", rest: 90, log: "reps",
+        unilateral: true, unilateralLabel: "leg", derived: true,
+        notes: "Replaces the band RDL. Bands give almost no tension at the stretched position, which is exactly where hamstrings grow.",
+        byWeek: {
+          1: { reps: "8", notes: "Balance is the limiter this week, not the hamstring. Touch a wall if you need to." },
+          2: { reps: "10" },
+          3: { reps: "12" },
+          4: { sets: 2, reps: "12" },
+        } },
       { id: "archer", name: "Archer push-ups", sets: 3, reps: "6", rest: 90, log: "reps",
         emphasis: true, unilateral: true },
-      { id: "bulgarian", name: "Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "reps",
-        unilateral: true, unilateralLabel: "leg" },
-      { id: "rdl", name: "Romanian deadlift, band", sets: 3, reps: "12", rest: 90, log: "reps",
-        notes: "Hamstrings" },
       { id: "lsit", name: "L-sit progression", sets: 4, reps: "max hold", rest: 60, log: "sec",
         notes: "Foot-supported → tuck → one leg" },
     ],
@@ -170,9 +184,28 @@ const b1 = {
     exercises: [
       { id: "hstaps", name: "Wall handstand + shoulder taps", sets: 4, reps: "20s / 6 taps", rest: 60, log: "sec" },
       { id: "pike", name: "Pike push-ups, feet elevated", sets: 4, reps: "8", rest: 120, log: "reps" },
+      { id: "squat", name: "Squat, tempo then loaded", sets: 3, reps: "12", rest: 90, log: "load", derived: true,
+        notes: "3 seconds down on every rep. Backpack for load once 15 bodyweight reps are easy.",
+        byWeek: {
+          1: { reps: "12", notes: "Bodyweight, 3 seconds down. Knees track over toes." },
+          2: { reps: "15", notes: "Bodyweight, 3 seconds down." },
+          3: { reps: "12", load: 5 },
+          4: { sets: 2, reps: "12", load: 5 },
+        } },
+      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "3", rest: 120, log: "reps", derived: true,
+        notes: "Anchor your heels under something solid. Lower as slowly as you can, catch yourself with your hands, push back up.",
+        byWeek: {
+          1: { reps: "3", notes: "Short range only. Hands ready to catch from the start." },
+          2: { reps: "4" },
+          3: { reps: "5" },
+          4: { sets: 2, reps: "5" },
+        } },
+      { id: "calf", name: "Single-leg calf raise", sets: 3, reps: "15", rest: 60, log: "reps",
+        unilateral: true, unilateralLabel: "leg", derived: true,
+        notes: "Off a step for full range. Pause one second at the bottom.",
+        byWeek: { 1: { reps: "15" }, 2: { reps: "18" }, 3: { reps: "20" }, 4: { sets: 2, reps: "20" } } },
       { id: "diamond", name: "Diamond push-ups", sets: 3, reps: "10", rest: 90, log: "reps" },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, reps: "6", rest: 90, log: "reps" },
-      { id: "squat", name: "Squat variation, loaded", sets: 3, reps: "10", rest: 90, log: "load" },
       { id: "plank", name: "Plank + side plank", sets: 3, reps: "45s / 30s each", rest: 45, log: "sec" },
     ],
   },
@@ -206,11 +239,25 @@ const b2 = {
       { id: "dips", name: "Weighted dips", sets: 4, reps: "6", rest: 120, log: "load", emphasis: true,
         notes: "Add 2.5 kg every two weeks.",
         byWeek: { 5: { load: 2.5 }, 6: { load: 2.5 }, 7: { load: 5 }, 8: { load: 5, notes: "Consolidation week. Retest Friday." } } },
+      { id: "bulgarian", name: "Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
+        unilateral: true, unilateralLabel: "leg",
+        notes: "Backpack. Same rule as the dips — add 2.5–5 kg every two weeks, not every week.",
+        byWeek: {
+          5: { reps: "10", load: 5 },
+          6: { reps: "12", load: 5 },
+          7: { reps: "10", load: 10 },
+          8: { sets: 2, reps: "10", load: 10, notes: "Consolidation week." },
+        } },
+      { id: "slrdl", name: "Single-leg Romanian deadlift, loaded", sets: 3, reps: "10", rest: 90, log: "load",
+        unilateral: true, unilateralLabel: "leg",
+        byWeek: {
+          5: { reps: "10", load: 5 },
+          6: { reps: "12", load: 5 },
+          7: { reps: "10", load: 10 },
+          8: { sets: 2, reps: "10", load: 10 },
+        } },
       { id: "archer", name: "Archer push-ups", sets: 3, reps: "8", rest: 90, log: "reps",
         emphasis: true, unilateral: true },
-      { id: "bulgarian", name: "Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
-        unilateral: true, unilateralLabel: "leg" },
-      { id: "rdl", name: "Romanian deadlift, band", sets: 3, reps: "12", rest: 90, log: "reps" },
       { id: "lsit", name: "L-sit progression", sets: 4, reps: "max hold", rest: 60, log: "sec", notes: "Tuck → one leg" },
     ],
   },
@@ -238,9 +285,27 @@ const b2 = {
     exercises: [
       { id: "hstaps", name: "Freestanding handstand + wall taps", sets: 4, reps: "30s", rest: 60, log: "sec" },
       { id: "pike", name: "Pike push-ups, feet elevated", sets: 4, reps: "10", rest: 120, log: "reps" },
+      { id: "squat", name: "Squat, loaded", sets: 3, reps: "12", rest: 90, log: "load",
+        notes: "Keep the 3-second descent as the load goes up.",
+        byWeek: {
+          5: { reps: "12", load: 10 },
+          6: { reps: "15", load: 10 },
+          7: { reps: "12", load: 15 },
+          8: { sets: 2, reps: "12", load: 15 },
+        } },
+      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "5", rest: 120, log: "reps",
+        notes: "Full range by the end of this block — lower all the way before your hands take over.",
+        byWeek: {
+          5: { reps: "5" },
+          6: { reps: "6" },
+          7: { sets: 4, reps: "5", notes: "Full range now. Quality over reps." },
+          8: { sets: 3, reps: "5" },
+        } },
+      { id: "calf", name: "Single-leg calf raise, off a step", sets: 3, reps: "15", rest: 60, log: "reps",
+        unilateral: true, unilateralLabel: "leg", notes: "Full stretch at the bottom, one-second pause.",
+        byWeek: { 5: { reps: "15" }, 6: { reps: "18" }, 7: { reps: "20" }, 8: { sets: 2, reps: "20" } } },
       { id: "pseudo", name: "Decline or pseudo-planche push-ups", sets: 3, reps: "8", rest: 90, log: "reps" },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, reps: "8", rest: 90, log: "reps", notes: "Bodyweight" },
-      { id: "squat", name: "Squat variation, loaded", sets: 3, reps: "10", rest: 90, log: "load" },
       { id: "plank", name: "Plank + side plank", sets: 3, reps: "60s / 40s each", rest: 45, log: "sec" },
     ],
   },
@@ -269,10 +334,25 @@ const b3 = {
       { id: "hswall", name: "Freestanding handstand", sets: 5, reps: "30s", rest: 60, log: "sec" },
       { id: "dips", name: "Weighted dips", sets: 5, reps: "5", rest: 150, log: "load", emphasis: true,
         notes: "Continue adding 2.5 kg every two weeks" },
+      { id: "bulgarian", name: "Deficit Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
+        unilateral: true, unilateralLabel: "leg", emphasis: true,
+        notes: "Front foot on a low step. The deficit buys you range once the backpack stops getting heavier.",
+        byWeek: {
+          9: { reps: "10", load: 10 },
+          10: { reps: "12", load: 10 },
+          11: { reps: "10", load: 15 },
+          12: { sets: 2, reps: "10", load: 15, notes: "Consolidation week. Retest Friday." },
+        } },
+      { id: "slrdl", name: "Deficit single-leg Romanian deadlift", sets: 3, reps: "10", rest: 90, log: "load",
+        unilateral: true, unilateralLabel: "leg",
+        notes: "Stand on the step so the weight travels below your foot.",
+        byWeek: {
+          9: { reps: "10", load: 10 },
+          10: { reps: "12", load: 10 },
+          11: { reps: "10", load: 15 },
+          12: { sets: 2, reps: "10", load: 15 },
+        } },
       { id: "pseudo", name: "Pseudo-planche push-ups", sets: 3, reps: "8", rest: 90, log: "reps", emphasis: true },
-      { id: "bulgarian", name: "Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
-        unilateral: true, unilateralLabel: "leg" },
-      { id: "rdl", name: "Romanian deadlift, band", sets: 3, reps: "12", rest: 90, log: "reps" },
       { id: "lsit", name: "Full L-sit", sets: 4, reps: "max hold", rest: 60, log: "sec" },
     ],
   },
@@ -295,9 +375,27 @@ const b3 = {
     exercises: [
       { id: "hstaps", name: "Freestanding handstand + shoulder taps", sets: 4, reps: "30s", rest: 60, log: "sec" },
       { id: "pike", name: "Pike push-ups, feet elevated", sets: 4, reps: "10", rest: 120, log: "reps" },
+      { id: "pistol", name: "Assisted pistol squat", sets: 3, reps: "6", rest: 120, log: "reps",
+        unilateral: true, unilateralLabel: "leg", emphasis: true,
+        notes: "Hold a post or a band for as much help as you need. Sit to a box first if the full depth isn't there — this is a skill as much as a strength lift.",
+        byWeek: {
+          9: { reps: "6", notes: "Box pistol, or hold a support with both hands. Depth before independence." },
+          10: { reps: "8" },
+          11: { reps: "10", notes: "Try one unassisted rep per set before the assisted work." },
+          12: { sets: 2, reps: "10" },
+        } },
+      { id: "nordic", name: "Nordic curl negatives", sets: 4, reps: "5", rest: 120, log: "reps",
+        byWeek: {
+          9: { sets: 4, reps: "5" },
+          10: { sets: 4, reps: "6" },
+          11: { sets: 4, reps: "6", notes: "Five seconds down on every rep." },
+          12: { sets: 3, reps: "6" },
+        } },
+      { id: "calf", name: "Single-leg calf raise, loaded", sets: 3, reps: "15", rest: 60, log: "load",
+        unilateral: true, unilateralLabel: "leg",
+        byWeek: { 9: { reps: "15", load: 10 }, 10: { reps: "18", load: 10 }, 11: { reps: "20", load: 10 }, 12: { sets: 2, reps: "20", load: 10 } } },
       { id: "pseudo", name: "Pseudo-planche push-ups", sets: 3, reps: "10", rest: 90, log: "reps" },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, reps: "8", rest: 90, log: "reps" },
-      { id: "squat", name: "Squat variation, loaded", sets: 3, reps: "10", rest: 90, log: "load" },
       { id: "plank", name: "Plank + side plank", sets: 3, reps: "60s / 45s each", rest: 45, log: "sec" },
     ],
   },
@@ -308,6 +406,56 @@ export const SESSIONS = { 1: b1, 2: b2, 3: b3 };
 export const GTG = "If — and only if — you have a bar at home: do 2 pull-ups (half your max, never more) several times a day, on non-training days too. Never hard, never to failure. This is the single fastest method for adding reps at your level. Skip it entirely if the only bar you have is at a park.";
 
 export const NUTRITION = "At 67 kg, roughly 110–145 g of protein a day. Skills and size both want a modest calorie surplus — you're light, and gaining a couple of kilos of muscle will help your physique far more than it hurts your pull-ups. Sleep seven to nine hours; it does more for your numbers than any extra set.";
+
+// ─── Duration estimate ───────────────────────────────────────────────────────
+// Rough, and deliberately so: the prescribed rests taken in full, a controlled
+// tempo on every rep, and time to walk between the bar and the floor. Most
+// people run faster than this by cutting rests — which on this program defeats
+// the point, since every set is meant to sit at 50–75% of max.
+
+const SEC_PER_REP = 3;
+const TRANSITION_SEC = 45;   // setup, walking, chalk, between exercises
+const WARMUP_SEC = 8 * 60;
+const SWITCH_REST = 0.6;     // switching sides needs less rest than a full set
+
+function repRange(reps) {
+  const m = String(reps || "").match(/(\d+)\s*[–-]?\s*(\d+)?/);
+  if (!m) return null;
+  return m[2] ? (Number(m[1]) + Number(m[2])) / 2 : Number(m[1]);
+}
+
+function workSeconds(ex) {
+  const reps = String(ex.reps || "");
+  if (ex.log === "sec") {
+    if (/max/i.test(reps)) return 30;
+    return (repRange(reps) ?? 20) * (/each/i.test(reps) ? 2 : 1);
+  }
+  if (/max|amrap/i.test(reps)) return 8 * SEC_PER_REP;
+  return (repRange(reps) ?? 8) * SEC_PER_REP;
+}
+
+function exerciseSeconds(ex) {
+  if (ex.kind === "emom") return ex.minutes * 60;
+  if (ex.kind === "ladder") {
+    const round = ex.rungs.reduce((s, n) => s + n * SEC_PER_REP, 0)
+      + ex.rungRest * (ex.rungs.length - 1);
+    return ex.rounds * round + ex.rest * (ex.rounds - 1);
+  }
+  const sets = ex.sets * (ex.unilateral ? 2 : 1) + (ex.extraWeakSet ? 1 : 0);
+  const rest = ex.unilateral ? ex.rest * SWITCH_REST : ex.rest;
+  return sets * workSeconds(ex) + rest * Math.max(0, sets - 1);
+}
+
+// Minutes for a whole session, warm-up included. Rounded to the nearest 5 —
+// the estimate isn't precise enough to justify a sharper number.
+export function estimateSessionMinutes(session, week) {
+  if (!session) return null;
+  const total = session.exercises.reduce(
+    (sum, raw) => sum + exerciseSeconds(resolveExercise(raw, week)) + TRANSITION_SEC,
+    WARMUP_SEC,
+  );
+  return Math.round(total / 60 / 5) * 5;
+}
 
 export function blockForWeek(week) {
   return week <= 4 ? 1 : week <= 8 ? 2 : 3;

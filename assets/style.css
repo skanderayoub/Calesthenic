@@ -320,6 +320,17 @@ a { color: var(--push); }
   margin-top: 3px;
 }
 
+.sessionhead__time {
+  font-family: var(--font-mono); font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+  margin-top: 6px;
+}
+.sessionhead__time span {
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
 .sessionnote {
   font-size: 14px; color: var(--ink-dim);
   border-left: 1px solid var(--rule);

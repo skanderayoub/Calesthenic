@@ -2,7 +2,7 @@ import {
   ATHLETE, BALANCE_TARGET_RATIO, WARMUP, WARMUP_WARNING, SPLIT, BLOCKS,
   CONSOLIDATION_WEEKS, TIMELINE, ASYMMETRY_TESTS, ASYMMETRY_PROTOCOL,
   BACK_OFF, RULES, GTG, NUTRITION,
-  blockForWeek, getSession, resolveExercise,
+  blockForWeek, getSession, resolveExercise, estimateSessionMinutes,
 } from "./program.js";
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -306,7 +306,7 @@ function renderEmom(ex, rec) {
   </div>`;
 }
 
-function renderExercise(ex, rec, index, side) {
+function renderExercise(ex, rec, index, side, sessionDerived) {
   let spec, body;
 
   if (ex.kind === "ladder") {
@@ -337,6 +337,7 @@ function renderExercise(ex, rec, index, side) {
       </div>
       ${meta.length ? `<div class="ex__meta">${esc(meta.join(" · "))}</div>` : ""}
       ${ex.notes ? `<p class="ex__notes">${esc(ex.notes)}</p>` : ""}
+      ${ex.derived && !sessionDerived ? `<p class="ex__notes"><span class="badge badge--derived">Added &mdash; not in the original document</span></p>` : ""}
       ${ex.gate ? `<p class="ex__notes"><span class="badge badge--gate">Gate: 5 × 5 bodyweight, 2 in reserve</span></p>` : ""}
       ${body}
     </div>
@@ -387,7 +388,7 @@ function renderSession() {
 
   const cards = session.exercises.map((raw, i) => {
     const ex = resolveExercise(raw, week);
-    return renderExercise(ex, exRecord(week, day, ex.id), i, session.side);
+    return renderExercise(ex, exRecord(week, day, ex.id), i, session.side, session.derived);
   }).join("");
 
   $("#view-session").innerHTML = `${head}
@@ -395,6 +396,10 @@ function renderSession() {
       <div class="eyebrow">Week ${week} &middot; Block ${blockForWeek(week)} &middot; ${esc(session.day)}</div>
       <h2>${esc(session.label)}</h2>
       <div class="sessionhead__sub">${esc(session.subtitle)}</div>
+      <div class="sessionhead__time" title="Prescribed rests taken in full, warm-up included. An estimate, not a target.">
+        &asymp; ${estimateSessionMinutes(session, week)} min
+        <span>incl. warm-up</span>
+      </div>
       ${session.derived ? `<span class="badge badge--derived">Derived from block prose &mdash; adjust if this isn't what you meant</span>` : ""}
     </div>
     ${consolidation ? `<p class="sessionnote"><strong>Consolidation week.</strong> One set fewer everywhere. Keep the quality. Retest your maxes on Friday.</p>` : ""}
@@ -636,6 +641,24 @@ function renderProgram() {
         </table>
       </div>
       <p>The first version of this program had you at 5&times;4 pull-ups. With a genuine 4-rep max, that is five sets to failure &mdash; which is how you build elbow tendinopathy in about three weeks. Everything here is recalculated off a 4RM and sits deliberately at 50&ndash;75% of it.</p>
+    </div>
+
+    <div class="section">
+      <h2>Legs</h2>
+      <p>Legs stay spread across the two push days rather than getting their own — twice-weekly frequency beats one clustered day, and leg work doesn't pre-fatigue the shoulders and elbows the pressing needs. What they were missing was a progression. The original document prescribed an unchanging <span style="color:var(--ink-faint)">3 × 10 squat variation, loaded</span> for twelve straight weeks.</p>
+      <p>They now sit <strong>directly after the main push movement</strong> instead of at the end, because trailing exercises are the ones that get skipped when you're forty minutes deep.</p>
+      <div class="tablewrap" style="margin-top:14px">
+        <table>
+          <thead><tr><th>Block</th><th>Lever</th><th>What changes</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1&ndash;4</td><td>Reps</td><td>Bodyweight throughout. Split squats 10&nbsp;&rarr;&nbsp;15, single-leg RDL 8&nbsp;&rarr;&nbsp;12, Nordic negatives 3&nbsp;&rarr;&nbsp;5. Squats go loaded only in week 3.</td></tr>
+            <tr><td class="num">5&ndash;8</td><td>Load</td><td>Backpack enters, +2.5&ndash;5 kg every two weeks &mdash; the same cadence as your weighted dips. Nordics reach full range.</td></tr>
+            <tr><td class="num">9&ndash;12</td><td>Leverage</td><td>A backpack caps out, so range and leverage take over: deficit split squats and RDLs, assisted pistol squats, loaded calf raises.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Two swaps.</strong> The band Romanian deadlift is gone &mdash; bands give their least tension at the stretched position, which is exactly where hamstrings respond. Single-leg RDLs replace it, and being unilateral they also feed the weaker-side-first protocol. Nordic curl negatives and calf raises are new; calves had no work at all.</p>
+      <p style="color:var(--ink-faint)">This section is an addition. Nothing here came from the original document &mdash; every added exercise is badged in the session view.</p>
     </div>
 
     <div class="section">
