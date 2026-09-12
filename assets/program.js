@@ -118,6 +118,74 @@ const REL_LABELS = {
   squat60: "60-second squat test", calf: "calf raise max",
 };
 
+// ─── No-gym alternatives ─────────────────────────────────────────────────────
+// Keyed by exercise id, because the substitution is a property of the movement
+// rather than of the week. Every exercise marked equipment: "gym" has one.
+// A backpack is the workhorse: one litre of water is one kilogram.
+
+export const HOME_ALTS = {
+  pullup: {
+    name: "Backpack pull-ups",
+    how: "Load a backpack with water bottles &mdash; 1 litre is 1 kg. It caps out around 12&ndash;15 kg before the swing becomes the limiting factor. Past that, switch to 5-second negatives and stop chasing load at home.",
+  },
+  dips: {
+    name: "Backpack dips",
+    how: "Same backpack. Dips tolerate it better than pull-ups do because the load sits still against your back rather than swinging under you.",
+  },
+  pulldown: {
+    name: "Australian rows, feet elevated",
+    how: "Under a table edge, or a bar at hip height. The pulldown is here to give you pull volume that is not a pull-up, so a horizontal bodyweight row is the honest swap &mdash; not more pull-ups.",
+  },
+  cablerow: {
+    name: "Australian rows, feet elevated",
+    how: "Feet on a chair, chest to the bar, one second squeeze at the top. Raise the feet to make it harder.",
+  },
+  sacablerow: {
+    name: "Single-arm Australian row",
+    how: "Same protocol: weaker side first, stronger side matches. Walk your feet forward to add difficulty rather than adding reps.",
+  },
+  widerow: {
+    name: "Wide-grip Australian rows",
+    how: "Feet elevated, backpack on, hands wider than shoulders.",
+  },
+  facepull: {
+    name: "Band face pulls",
+    how: "Anchored at head height. A band is the weaker version of this &mdash; it gives least tension exactly at the stretch. Compensate with the slowest tempo you can hold and a one-second pause at your face.",
+  },
+  squat: {
+    name: "Backpack Bulgarian split squats",
+    how: "Two-legged bodyweight squats stop being a stimulus quickly, so go unilateral rather than adding reps. Rear foot on a chair, three seconds down, backpack on. Roughly 12 reps a leg for a set of 8 on the bar.",
+  },
+  rdl: {
+    name: "Single-leg Romanian deadlift",
+    how: "Backpack worn or a weight held in the opposite hand. Balance will be the limiter for the first week, not the hamstring &mdash; touch a wall with one finger if you need to.",
+  },
+  legpress: {
+    name: "Walking or reverse lunges",
+    how: "Backpack on. Long steps, front knee tracking over the toes.",
+  },
+  hamcurl: {
+    name: "Nordic curl negatives",
+    how: "Heels wedged under a sofa or a door frame. This is the harder version of the same job, so cut the range rather than the reps &mdash; lower only as far as you can control, catch with your hands, push back up.",
+  },
+  calf: {
+    name: "Single-leg calf raise off a step",
+    how: "Backpack on. Full stretch at the bottom, one second pause.",
+  },
+  curls: {
+    name: "Chin-up negatives",
+    how: "Five seconds down, every rep. Bodyweight biceps work is mostly supinated pulling &mdash; band curls also work if your elbows are already irritated.",
+  },
+  bulgarian: {
+    name: "Backpack Bulgarian split squats",
+    how: "Backpack instead of dumbbells. For the deficit version in block 3, put your front foot on a stack of books.",
+  },
+  bandRow: {
+    name: "Single-arm band row, marked",
+    how: "A band with a fixed anchor and a marked foot position, or a single-arm Australian row with your feet at a marked distance. Whatever you pick becomes the permanent reference: same band, same anchor, same marks, every single test. Change it and the number stops meaning anything.",
+  },
+};
+
 // ─── Test sessions ───────────────────────────────────────────────────────────
 // kind: "test" items write straight into the max and asymmetry logs.
 // measures: which field of a max entry the result fills.

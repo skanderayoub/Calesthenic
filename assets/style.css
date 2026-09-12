@@ -532,6 +532,29 @@ a { color: var(--push); }
 .badge--gate { border-color: var(--done); color: var(--done); background: transparent; }
 .badge--gym { border-color: var(--rule); color: var(--ink-faint); background: transparent; }
 
+/* Away from the gym: a collapsed swap on every gym-dependent card. */
+
+.alt { margin: 10px 0 0; }
+.alt summary {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; list-style: none;
+  padding: 3px 0;
+}
+.alt summary::-webkit-details-marker { display: none; }
+.alt__cue {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.04em; color: var(--ink-faint);
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.alt[open] .alt__cue { text-decoration: none; color: var(--ink-dim); }
+.alt > p {
+  margin: 8px 0 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--rule);
+  font-size: 13px; color: var(--ink-dim);
+}
+
 /* ── Test sessions ───────────────────────────────────────────────────── */
 
 .testresult { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }

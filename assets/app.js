@@ -1,7 +1,7 @@
 import {
   ATHLETE, BALANCE_TARGET_RATIO, WARMUP, WARMUP_WARNING, SPLIT, BLOCKS,
   CONSOLIDATION_WEEKS, TIMELINE, ASYMMETRY_TESTS, ASYMMETRY_PROTOCOL,
-  BACK_OFF, RULES, GTG, NUTRITION, PAIRING_NOTE, POWER_NOTE,
+  BACK_OFF, RULES, GTG, NUTRITION, PAIRING_NOTE, POWER_NOTE, HOME_ALTS,
   blockForWeek, getSession, resolveExercise, estimateSessionMinutes, isTestWeek,
 } from "./program.js";
 
@@ -370,7 +370,7 @@ function renderExercise(ex, rec, index, side, sessionDerived) {
       ${ex.locked ? renderLock(ex) : ""}
       ${ex.notes ? `<p class="ex__notes">${esc(ex.notes)}</p>` : ""}
       ${ex.gate && !ex.locked ? `<p class="ex__notes"><span class="badge badge--gate">Gate cleared &mdash; ${ex.gateHave} strict, needed ${ex.gate.min}</span></p>` : ""}
-      ${ex.equipment === "gym" ? `<p class="ex__notes"><span class="badge badge--gym">Gym</span></p>` : ""}
+      ${ex.equipment === "gym" ? renderAlt(ex) : ""}
       ${body}
     </div>
   </article>`;
@@ -388,6 +388,17 @@ function renderLock(ex) {
     <p>${esc(ex.gate.why)}</p>
     <p class="lock__sub">Doing this instead:</p>
   </div>`;
+}
+
+// Gym-dependent movements carry their swap with them, collapsed. At the gym it
+// stays out of the way; away from it, it is one tap and you are not improvising.
+function renderAlt(ex) {
+  const alt = HOME_ALTS[ex.id];
+  if (!alt) return `<p class="ex__notes"><span class="badge badge--gym">Gym</span></p>`;
+  return `<details class="alt">
+    <summary><span class="badge badge--gym">Gym</span><span class="alt__cue">No gym? ${esc(alt.name)}</span></summary>
+    <p>${alt.how}</p>
+  </details>`;
 }
 
 function renderTestInput(ex, rec) {
@@ -891,6 +902,7 @@ function renderProgram() {
         <li><span>&rarr;</span><div><strong>Cable face pulls.</strong> The same objection that killed the band Romanian deadlift in v2: a band gives its least tension exactly where you need the most.</div></li>
         <li><span>&rarr;</span><div><strong>Hamstring curl machine.</strong> Assistance work, so the Nordics can stay at full range.</div></li>
       </ul>
+      <p style="margin-top:14px"><strong>Every one of these has a no-gym swap.</strong> Each card marked <em>Gym</em> in the session view carries its own alternative, collapsed &mdash; one tap and you have the substitution, so a travel week or a closed gym does not become an improvised session. A backpack does most of the work: one litre of water is one kilogram.</p>
       <p style="margin-top:14px"><strong>Deliberately not added:</strong> barbell bench, machine chest press, barbell row, leg extension &mdash; every lift that would displace a calisthenics movement already doing the same job. Vertical pressing stays pike push-up to handstand push-up. Horizontal pressing stays push-up variations and dips.</p>
     </div>
 

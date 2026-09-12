@@ -56,7 +56,7 @@ Each exercise is one object:
 | `kind` | `"emom"`, `"ladder"`, `"test"`, or omitted for ordinary sets |
 | `unilateral` | Renders the weaker side first and caps the stronger side at its reps |
 | `power` | Never paired; grouped under one "full rest" heading |
-| `equipment` | `"gym"` adds a badge |
+| `equipment` | `"gym"` adds a badge and surfaces the no-gym swap from `HOME_ALTS` |
 | `byWeek` | Per-week override, merged over the base |
 
 Three things worth knowing before you edit:
@@ -66,6 +66,26 @@ Three things worth knowing before you edit:
 **The consolidation rule only fires when no `byWeek` entry exists** for that week. Weeks 4, 8 and 12 auto-drop one set — but if you add a `byWeek` entry for one of those weeks, you must bake the dropped set into it yourself.
 
 **Never pair two unilateral exercises.** A unilateral exercise already alternates between sides; pairing two of them produces a block that takes 25 minutes. Leave them unpaired.
+
+## No-gym alternatives
+
+Every exercise marked `equipment: "gym"` has an entry in `HOME_ALTS` in `program.js`, keyed by exercise id — the substitution is a property of the movement, not of the week. The session view renders it as a collapsed disclosure on the card.
+
+If you add a gym-dependent exercise, add its alternative too. `npm test` would be overkill for a four-file site, so this is the check:
+
+```sh
+node --input-type=module -e "
+import * as m from './assets/program.js';
+const ids = new Set();
+for (let w = 0; w <= 12; w++)
+  for (const d of (w ? ['strength','volume','density','power'] : ['calibration'])) {
+    const s = m.getSession(w, d); if (!s) continue;
+    s.exercises.forEach(e => { if (m.resolveExercise(e, w, {}).equipment === 'gym') ids.add(e.id); });
+  }
+const missing = [...ids].filter(i => !m.HOME_ALTS[i]);
+console.log(missing.length ? 'MISSING: ' + missing.join(', ') : 'every gym movement has an alternative');
+"
+```
 
 ## Test sessions
 
