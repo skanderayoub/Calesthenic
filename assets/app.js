@@ -1,8 +1,8 @@
 import {
   ATHLETE, BALANCE_TARGET_RATIO, WARMUP, WARMUP_WARNING, SPLIT, BLOCKS,
   CONSOLIDATION_WEEKS, TIMELINE, ASYMMETRY_TESTS, ASYMMETRY_PROTOCOL,
-  BACK_OFF, RULES, GTG, NUTRITION,
-  blockForWeek, getSession, resolveExercise, estimateSessionMinutes,
+  BACK_OFF, RULES, GTG, NUTRITION, PAIRING_NOTE, POWER_NOTE,
+  blockForWeek, getSession, resolveExercise, estimateSessionMinutes, isTestWeek,
 } from "./program.js";
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -112,10 +112,21 @@ function fmtDate(iso) {
   return `${Number(d)} ${months[Number(m) - 1]} ${y}`;
 }
 
+const DAY_KEYS = SPLIT.filter((s) => s.session).map((s) => s.session);
+
 function defaultDay() {
   const idx = (new Date().getDay() + 6) % 7;   // 0 = Mon
   const entry = SPLIT[idx];
-  return entry && entry.session ? entry.session : "pullA";
+  return entry && entry.session ? entry.session : DAY_KEYS[0];
+}
+
+// Saved state can hold a day key from an earlier version of the program
+// ("pullA"). Without this the app would resolve no session and show a rest day
+// for ever, with no way back.
+function currentDay(week) {
+  if (week === 0) return "calibration";
+  const d = state.day;
+  return DAY_KEYS.includes(d) ? d : defaultDay();
 }
 
 // ─── Rest timer ──────────────────────────────────────────────────────────────
@@ -164,7 +175,9 @@ document.addEventListener("visibilitychange", () => {
 // ─── Session view ────────────────────────────────────────────────────────────
 
 function renderRuler(week) {
-  const cells = [];
+  const cells = [`<button class="ruler__week ruler__week--test" type="button" data-week="0"
+       data-done="${state.maxes.length > 0}" aria-current="${week === 0}" aria-label="Calibration session">
+       <span class="ruler__dot"></span>T</button>`];
   for (let w = 1; w <= 12; w++) {
     const blockStart = w === 1 || w === 5 || w === 9;
     const done = Object.keys(state.sessions).some(
@@ -187,12 +200,22 @@ function renderRuler(week) {
 }
 
 function renderDays(week, day) {
+  if (week === 0) {
+    return `<div class="days days--one" role="group" aria-label="Day">
+      <button class="day" type="button" data-day="calibration" data-side="test" aria-pressed="true">
+        W0<strong>CALIBRATION</strong>
+      </button></div>`;
+  }
   const todayIdx = (new Date().getDay() + 6) % 7;
-  return `<div class="days" role="group" aria-label="Day">${SPLIT.slice(0, 5).map((s, i) => `
-    <button class="day" type="button" data-day="${s.session || "rest"}" data-side="${s.side}"
+  const retest = CONSOLIDATION_WEEKS.includes(week);
+  return `<div class="days" role="group" aria-label="Day">${SPLIT.slice(0, 5).map((s, i) => {
+    const isRetest = retest && s.session === "power";
+    return `<button class="day" type="button" data-day="${s.session || "rest"}"
+            data-side="${isRetest ? "test" : s.side}"
             data-today="${i === todayIdx}" aria-pressed="${(s.session || "rest") === day}">
-      ${s.short}<strong>${s.label}</strong>
-    </button>`).join("")}</div>`;
+      ${s.short}<strong>${isRetest ? "RETEST" : s.label}</strong>
+    </button>`;
+  }).join("")}</div>`;
 }
 
 function renderWarmup(week, day) {
@@ -309,11 +332,14 @@ function renderEmom(ex, rec) {
 function renderExercise(ex, rec, index, side, sessionDerived) {
   let spec, body;
 
-  if (ex.kind === "ladder") {
+  if (ex.kind === "test") {
+    spec = ex.reps;
+    body = ex.measures ? renderTestInput(ex, rec) : "";
+  } else if (ex.kind === "ladder") {
     spec = `${ex.rounds} × (${ex.rungs.join("-")})`;
     body = renderLadder(ex, rec);
   } else if (ex.kind === "emom") {
-    spec = `EMOM ${ex.minutes} × ${ex.repsPerMinute}`;
+    spec = `EMOM ${ex.minutes} × ${ex.repsPerMinute}${ex.altReps ? ` / ${ex.altReps}` : ""}`;
     body = renderEmom(ex, rec);
   } else if (ex.unilateral) {
     spec = `${ex.sets} × ${ex.reps} each`;
@@ -326,29 +352,67 @@ function renderExercise(ex, rec, index, side, sessionDerived) {
   const meta = [];
   if (ex.rest) meta.push(`rest ${fmtRest(ex.rest)}`);
   if (ex.load != null) meta.push(`+${ex.load} kg`);
-  if (ex.kind === "emom") meta.push(`${ex.minutes * ex.repsPerMinute} total reps`);
+  if (ex.kind === "emom") {
+    meta.push(`odd: pull-ups · even: ${(ex.altName || "push").toLowerCase()}`);
+    meta.push(`${Math.round((ex.minutes / 2) * (ex.repsPerMinute + (ex.altReps || 0)))} total reps`);
+  }
+  if (ex.relResolved) meta.push(`${Math.round(ex.relResolved.pct * 100)}% of your ${ex.relResolved.label}`);
 
-  return `<article class="card" data-emphasis="${!!ex.emphasis}" data-side="${side}" data-ex="${esc(ex.id)}">
+  return `<article class="card" data-emphasis="${!!ex.emphasis}" data-side="${side}"
+           data-ex="${esc(ex.id)}"${ex.skill ? ` data-skill="true"` : ""}${ex.locked ? ` data-locked="true"` : ""}${ex.kind === "test" ? ` data-test="true"` : ""}>
     <div class="card__body">
       <div class="ex__top">
-        <span class="ex__num">${String(index + 1).padStart(2, "0")}</span>
+        <span class="ex__num">${ex.skill ? "&#9670;" : String(index).padStart(2, "0")}</span>
         <h3 class="ex__name">${esc(ex.name)}</h3>
         <span class="ex__spec">${esc(spec)}</span>
       </div>
       ${meta.length ? `<div class="ex__meta">${esc(meta.join(" · "))}</div>` : ""}
+      ${ex.locked ? renderLock(ex) : ""}
       ${ex.notes ? `<p class="ex__notes">${esc(ex.notes)}</p>` : ""}
-      ${ex.derived && !sessionDerived ? `<p class="ex__notes"><span class="badge badge--derived">Added &mdash; not in the original document</span></p>` : ""}
-      ${ex.gate ? `<p class="ex__notes"><span class="badge badge--gate">Gate: 5 × 5 bodyweight, 2 in reserve</span></p>` : ""}
+      ${ex.gate && !ex.locked ? `<p class="ex__notes"><span class="badge badge--gate">Gate cleared &mdash; ${ex.gateHave} strict, needed ${ex.gate.min}</span></p>` : ""}
+      ${ex.equipment === "gym" ? `<p class="ex__notes"><span class="badge badge--gym">Gym</span></p>` : ""}
       ${body}
     </div>
   </article>`;
+}
+
+// A gated exercise is never a dead card. It shows what it is waiting for, why,
+// and then hands you the fallback you should actually be doing today.
+function renderLock(ex) {
+  return `<div class="lock">
+    <div class="lock__head">
+      <span class="badge badge--locked">Locked</span>
+      <strong>${esc(ex.lockedName)}</strong>
+      needs ${ex.gate.min} strict pull-ups &mdash; your last test says ${ex.gateHave}
+    </div>
+    <p>${esc(ex.gate.why)}</p>
+    <p class="lock__sub">Doing this instead:</p>
+  </div>`;
+}
+
+function renderTestInput(ex, rec) {
+  const noun = ex.log === "sec" ? "seconds" : "reps";
+  const field = (path, label) => `<label class="testfield">
+    <span>${label}</span>
+    <input class="setinput" type="number" inputmode="numeric" step="1" min="0"
+      data-input="reps" data-path="${path}" data-i="0"
+      value="${rec[path] && rec[path][0] && rec[path][0].reps != null ? esc(rec[path][0].reps) : ""}"
+      aria-label="${label}, ${noun}">
+  </label>`;
+  arr(rec, ex.unilateral ? "weak" : "sets", 1, () => ({}));
+  if (ex.unilateral) arr(rec, "strong", 1, () => ({}));
+  return `<div class="testresult">
+    ${ex.unilateral
+      ? field("weak", `Weaker side, ${noun}`) + field("strong", `Stronger side, ${noun}`)
+      : field("sets", `Result, ${noun}`)}
+  </div>`;
 }
 
 function countProgress(session, week, day) {
   const rec = sessionRecord(week, day);
   let total = 0, done = 0;
   session.exercises.forEach((raw) => {
-    const ex = resolveExercise(raw, week);
+    const ex = resolveExercise(raw, week, measuredMaxes());
     const r = rec.ex[ex.id] || {};
     if (ex.kind === "ladder") {
       total += ex.rounds * ex.rungs.length;
@@ -356,6 +420,9 @@ function countProgress(session, week, day) {
     } else if (ex.kind === "emom") {
       total += ex.minutes;
       done += (r.minutes || []).filter(Boolean).length;
+    } else if (ex.kind === "test") {
+      total += 1;
+      done += (r.sets || r.weak || []).some((x) => x && x.reps != null) ? 1 : 0;
     } else if (ex.unilateral) {
       total += ex.sets * 2 + (ex.extraWeakSet ? 1 : 0);
       done += (r.weak || []).filter((s) => s && s.done).length + (r.strong || []).filter((s) => s && s.done).length;
@@ -367,9 +434,25 @@ function countProgress(session, week, day) {
   return { total, done };
 }
 
+// Group consecutive exercises by their pair letter, preserving order. Anything
+// without a pair stays a group of one.
+function groupPairs(list) {
+  const out = [];
+  const index = new Map();
+  list.forEach((ex) => {
+    // Power movements are unpaired but share one heading, so they group too.
+    const key = ex.pair || (ex.power ? "__power" : null);
+    if (!key) return out.push([ex]);
+    if (index.has(key)) return out[index.get(key)].push(ex);
+    index.set(key, out.length);
+    out.push([ex]);
+  });
+  return out;
+}
+
 function renderSession() {
   const week = state.week;
-  const day = state.day || defaultDay();
+  const day = currentDay(week);
   const session = getSession(week, day);
   const head = `${renderRuler(week)}${renderDays(week, day)}`;
 
@@ -384,12 +467,34 @@ function renderSession() {
 
   const rec = sessionRecord(week, day);
   const { total, done } = countProgress(session, week, day);
-  const consolidation = CONSOLIDATION_WEEKS.includes(week);
+  const consolidation = CONSOLIDATION_WEEKS.includes(week) && !session.test;
+  const maxes = measuredMaxes();
 
-  const cards = session.exercises.map((raw, i) => {
-    const ex = resolveExercise(raw, week);
-    return renderExercise(ex, exRecord(week, day, ex.id), i, session.side, session.derived);
-  }).join("");
+  let n = 0;
+  const cards = groupPairs(session.exercises.map((raw) => resolveExercise(raw, week, maxes)))
+    .map((group) => {
+      const inner = group.map((ex) => {
+        if (!ex.skill && ex.kind !== "test") n += 1;
+        return renderExercise(ex, exRecord(week, day, ex.id), n, ex.side || session.side, session.derived);
+      }).join("");
+      if (group[0].power) {
+        return `<div class="solo" data-power="true">
+          <div class="solo__head">Straight sets &mdash; full rest between every set</div>
+          ${inner}
+        </div>`;
+      }
+      if (group.length < 2) return inner;
+      return `<div class="pair">
+        <div class="pair__head">
+          <span class="pair__tag">Pair ${esc(group[0].pair)}</span>
+          <span>Alternate &mdash; 75s between movements</span>
+        </div>
+        ${inner}
+      </div>`;
+    }).join("");
+
+  const hasPairs = session.exercises.some((e) => e.pair);
+  const hasPower = session.exercises.some((e) => e.power);
 
   $("#view-session").innerHTML = `${head}
     <div class="sessionhead" data-side="${session.side}">
@@ -397,15 +502,17 @@ function renderSession() {
       <h2>${esc(session.label)}</h2>
       <div class="sessionhead__sub">${esc(session.subtitle)}</div>
       <div class="sessionhead__time" title="Prescribed rests taken in full, warm-up included. An estimate, not a target.">
-        &asymp; ${estimateSessionMinutes(session, week)} min
-        <span>incl. warm-up</span>
+        &asymp; ${estimateSessionMinutes(session, week, maxes)} min
+        <span>${session.test ? "start to finish" : "incl. warm-up"}</span>
       </div>
-      ${session.derived ? `<span class="badge badge--derived">Derived from block prose &mdash; adjust if this isn't what you meant</span>` : ""}
     </div>
-    ${consolidation ? `<p class="sessionnote"><strong>Consolidation week.</strong> One set fewer everywhere. Keep the quality. Retest your maxes on Friday.</p>` : ""}
+    ${consolidation ? `<p class="sessionnote"><strong>Consolidation week.</strong> One set fewer everywhere. Keep the quality. Friday is a retest.</p>` : ""}
     ${session.note ? `<p class="sessionnote">${esc(session.note)}</p>` : ""}
-    ${renderWarmup(week, day)}
-    <div class="progress">Sets logged <b>${done}</b> / ${total}</div>
+    ${session.test ? "" : renderWarmup(week, day)}
+    ${hasPairs ? `<p class="sessionnote sessionnote--quiet">${esc(PAIRING_NOTE)}</p>` : ""}
+    ${hasPower ? `<p class="sessionnote sessionnote--quiet">${esc(POWER_NOTE)}</p>` : ""}
+    ${!maxes.fromLog && !session.test ? `<p class="sessionnote sessionnote--warn">These numbers come from an assumed starting max, not a measured one. Run the <a href="#session" data-goto-calibration>week 0 calibration session</a> and every prescription below recalculates.</p>` : ""}
+    <div class="progress">${session.test ? "Results logged" : "Sets logged"} <b>${done}</b> / ${total}</div>
     ${cards}
     <div class="sessionfoot">
       <label class="field">
@@ -414,7 +521,7 @@ function renderSession() {
       </label>
       <div class="btnrow">
         <button class="btn btn--primary" type="button" data-finish>
-          ${rec.finished ? `Finished ${fmtDate(rec.finished)}` : "Finish session"}
+          ${rec.finished ? `Finished ${fmtDate(rec.finished)}` : (session.test ? "Save results &amp; recalculate" : "Finish session")}
         </button>
         <button class="btn btn--ghost btn--sm" type="button" data-clear-session>Clear this session</button>
       </div>
@@ -487,9 +594,26 @@ sessionView.addEventListener("click", (e) => {
     return;
   }
 
+  if (e.target.closest("[data-goto-calibration]")) {
+    e.preventDefault();
+    state.week = 0; state.day = "calibration";
+    save(); renderSession();
+    window.scrollTo({ top: 0 });
+    return;
+  }
+
   if (e.target.closest("[data-finish]")) {
     const rec = sessionRecord(week, day);
+    const session = getSession(week, day);
     rec.finished = rec.finished ? null : todayISO();
+    if (rec.finished && session && session.test) {
+      const before = measuredMaxes();
+      commitTest(session, rec);
+      save();
+      renderAll();
+      showRecalibration(before, measuredMaxes());
+      return;
+    }
     save(); renderSession();
     if (rec.finished && CONSOLIDATION_WEEKS.includes(week)) {
       // The program tests maxes every 4 weeks, never weekly.
@@ -505,6 +629,64 @@ sessionView.addEventListener("click", (e) => {
     save(); renderSession();
   }
 });
+
+// A test session writes into the same two logs the Log view already owns, so
+// the gauge, the chart and the asymmetry verdict all update from one entry.
+function commitTest(session, rec) {
+  const date = rec.finished || todayISO();
+  const maxEntry = { date };
+  const asym = { date };
+  let anyMax = false, anyAsym = false;
+
+  session.exercises.forEach((ex) => {
+    if (ex.kind !== "test" || !ex.measures) return;
+    const r = rec.ex[ex.id] || {};
+    const read = (path) => {
+      const v = r[path] && r[path][0] ? r[path][0].reps : null;
+      return v == null || v === "" ? null : Number(v);
+    };
+    if (ex.unilateral) {
+      const w = read("weak"), st = read("strong");
+      if (w == null && st == null) return;
+      anyAsym = true;
+      // Weaker side first is the protocol, so it maps to whichever of L/R is
+      // smaller — the asymmetry table only cares about the pair.
+      asym[ex.measures + "L"] = w;
+      asym[ex.measures + "R"] = st;
+      if (MAX_FIELDS.includes(ex.measures)) {
+        maxEntry[ex.measures] = Math.min(...[w, st].filter((x) => x != null));
+        anyMax = true;
+      }
+    } else {
+      const v = read("sets");
+      if (v == null) return;
+      maxEntry[ex.measures] = v;
+      anyMax = true;
+    }
+  });
+
+  if (anyMax) state.maxes.push(maxEntry);
+  if (anyAsym) state.asymmetry.push(asym);
+}
+
+function showRecalibration(before, after) {
+  const changes = MAX_FIELDS
+    .filter((f) => after[f] !== before[f])
+    .map((f) => `${LABELS[f]} ${before[f]} → ${after[f]}`);
+  const box = document.createElement("div");
+  box.className = "recal";
+  box.innerHTML = `<strong>Recalibrated.</strong> ${
+    changes.length ? esc(changes.join(" · ")) : "No numbers changed."
+  } Every prescription in the twelve weeks has been rewritten off these.`;
+  const view = $("#view-session");
+  view.insertBefore(box, view.firstChild);
+  box.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+const LABELS = {
+  pullups: "Pull-ups", dips: "Dips", pushups: "Push-ups",
+  squat60: "Squats in 60s", calf: "Calf raises",
+};
 
 sessionView.addEventListener("keydown", (e) => {
   if ((e.key === "Enter" || e.key === " ") && e.target.closest("[data-warmup]")) {
@@ -537,7 +719,9 @@ sessionView.addEventListener("input", (e) => {
 
   // Rule 3 again, on the way in: the stronger side can never record more reps
   // than the weaker side managed, however it was typed.
-  if (path === "strong" && field === "reps" && val != null) {
+  // Exempt test cards: a calibration session is *measuring* the asymmetry, so
+  // clamping the stronger side there would destroy the number being recorded.
+  if (path === "strong" && field === "reps" && val != null && card.dataset.test !== "true") {
     const cap = weakCap(rec);
     if (cap != null && val > cap) { val = cap; input.value = cap; }
   }
@@ -556,6 +740,7 @@ function weakCap(rec) {
 // Rule 3, enforced rather than annotated: the stronger side can never be
 // logged above the weaker side's lowest set.
 function applyCap(card, rec) {
+  if (card.dataset.test === "true") return;
   const cap = weakCap(rec);
   if (cap == null) return;
   card.querySelectorAll('[data-path="strong"][data-input="reps"]').forEach((el) => {
@@ -577,19 +762,21 @@ sessionView.addEventListener("change", (e) => {
 
 function renderProgram() {
   const active = blockForWeek(state.week);
+  const mx = measuredMaxes();
 
   $("#view-program").innerHTML = `
     <div class="section">
       <div class="eyebrow">The finding</div>
       <h2>Your push is three times ahead of your pull</h2>
-      <p style="margin-top:12px">Someone who can grind 40 quality dips should be doing 8&ndash;10 strict pull-ups, not ${ATHLETE.baseline.pullups}. That single fact shapes every session in this program.</p>
+      <p style="margin-top:12px">Someone who can grind 40 quality dips should be doing 8&ndash;10 strict pull-ups, not ${mx.pullups}. That single fact shapes every session in this program.</p>
       <div class="tablewrap" style="margin-top:14px">
         <table>
-          <thead><tr><th>Movement</th><th>Estimated true max</th></tr></thead>
+          <thead><tr><th>Movement</th><th>${mx.fromLog ? `Measured ${fmtDate(mx.measuredAt)}` : "Assumed &mdash; not yet measured"}</th></tr></thead>
           <tbody>
-            <tr><td>Pull-ups (strict, pronated)</td><td class="num real">${ATHLETE.baselineLabel.pullups}</td></tr>
-            <tr><td>Dips</td><td class="num">${ATHLETE.baselineLabel.dips}</td></tr>
-            <tr><td>Push-ups</td><td class="num">${ATHLETE.baselineLabel.pushups}</td></tr>
+            <tr><td>Pull-ups (strict, pronated)</td><td class="num real">${mx.pullups}</td></tr>
+            <tr><td>Dips</td><td class="num">${mx.dips}</td></tr>
+            <tr><td>Push-ups</td><td class="num">${mx.pushups}</td></tr>
+            <tr><td>Squats in 60 seconds</td><td class="num">${mx.squat60}</td></tr>
           </tbody>
         </table>
       </div>
@@ -613,6 +800,7 @@ function renderProgram() {
 
     <div class="section">
       <h2>The weekly split</h2>
+      <p style="margin-bottom:14px">Four sessions, every one of them mixed. Splitting pull from push was the v2 structure; it is gone. Each day now pairs movements that don't compete, which is both what you asked for and, as it turns out, the shorter way to train.</p>
       <div class="tablewrap">
         <table>
           <thead><tr><th>Day</th><th>Session</th></tr></thead>
@@ -644,21 +832,66 @@ function renderProgram() {
     </div>
 
     <div class="section">
-      <h2>Legs</h2>
-      <p>Legs stay spread across the two push days rather than getting their own — twice-weekly frequency beats one clustered day, and leg work doesn't pre-fatigue the shoulders and elbows the pressing needs. What they were missing was a progression. The original document prescribed an unchanging <span style="color:var(--ink-faint)">3 × 10 squat variation, loaded</span> for twelve straight weeks.</p>
-      <p>They now sit <strong>directly after the main push movement</strong> instead of at the end, because trailing exercises are the ones that get skipped when you're forty minutes deep.</p>
+      <h2>Why it&#39;s built this way</h2>
+      <p>Four findings shaped v3. They are worth knowing, because they are also the reasons not to &ldquo;improve&rdquo; it by adding sets.</p>
+
+      <h3 class="subhead">1. Mixing pull and push is the better structure, not a compromise</h3>
+      <p>You asked for it as a preference. It turns out to be the stronger design anyway. Steven Low&#39;s framework &mdash; the standard reference for bodyweight strength &mdash; builds full-body sessions of two to three pushes, two to three pulls and two leg movements, with the push and pull <em>paired</em>, resting 1.5&ndash;3.5 minutes between pairs rather than 3&ndash;7 between straight sets. A 2025 <em>Sports Medicine</em> meta-analysis on supersets found that agonist&ndash;antagonist pairing roughly halves session duration at equal volume, equal hypertrophy and equal strength &mdash; and that you complete slightly more total reps. That is why v3 sessions run around 55 minutes where v2&#39;s Friday reached 68.</p>
+
+      <h3 class="subhead">2. Frequency is what moves a low pull-up max</h3>
+      <p>The Fighter Pull-up Program and greasing the groove work on one principle: frequent, submaximal, never to failure. Going full-body four times a week takes your pull-up frequency from twice a week to four times, without adding a single set to failure.</p>
+
+      <h3 class="subhead">3. Explosive pull-ups work &mdash; and they are gated</h3>
+      <p>A 2024 trial on advanced climbers compared eccentric, isometric and plyometric pull-up training over five weeks. Maximum strength rose in all three groups, by 2.2% to 5.0%. But only the plyometric group increased muscle work, by 21.9%, along with movement velocity. The prerequisite is consistent across every source: five to eight strict full-range reps before plyometric pull-ups, then 3&ndash;5 sets of 3&ndash;5 reps, fully rested. So block 1 trains intent only, and the impact versions unlock on a measured number rather than a date.</p>
+
+      <h3 class="subhead">4. EMOM earns exactly one day</h3>
+      <p>EMOM is a cluster-set method, and the cluster-set literature is clear: equal hypertrophy, equal or slightly better strength when volume is matched, and noticeably better maintenance of rep quality, because you never approach failure. That is the right tool for banking pull-up volume at a low max &mdash; and the wrong tool on the power day, where leftover fatigue destroys the very velocity you are training. One EMOM day, not four.</p>
+    </div>
+
+    <div class="section">
+      <h2>The explosive progression</h2>
+      <p>Three stages, each gated on a measured pull-up max rather than a date. If the number is not there, the app shows you the fallback instead of the locked movement &mdash; you are never left holding a card you cannot do.</p>
       <div class="tablewrap" style="margin-top:14px">
         <table>
-          <thead><tr><th>Block</th><th>Lever</th><th>What changes</th></tr></thead>
+          <thead><tr><th>Block</th><th>Gate</th><th>Work</th></tr></thead>
           <tbody>
-            <tr><td class="num">1&ndash;4</td><td>Reps</td><td>Bodyweight throughout. Split squats 10&nbsp;&rarr;&nbsp;15, single-leg RDL 8&nbsp;&rarr;&nbsp;12, Nordic negatives 3&nbsp;&rarr;&nbsp;5. Squats go loaded only in week 3.</td></tr>
-            <tr><td class="num">5&ndash;8</td><td>Load</td><td>Backpack enters, +2.5&ndash;5 kg every two weeks &mdash; the same cadence as your weighted dips. Nordics reach full range.</td></tr>
-            <tr><td class="num">9&ndash;12</td><td>Leverage</td><td>A backpack caps out, so range and leverage take over: deficit split squats and RDLs, assisted pistol squats, loaded calf raises.</td></tr>
+            <tr><td class="num">1&ndash;4</td><td class="num">none</td><td><strong>Intent to move fast.</strong> An ordinary pull-up at maximum concentric speed, chest to bar as the range target. Most of the speed adaptation, none of the impact.</td></tr>
+            <tr><td class="num">5&ndash;8</td><td class="num real">6 strict</td><td><strong>Hands-off pull-ups.</strong> 4 &times; 3, three minutes rest. Tap the bar and re-grip. Land into a bent elbow, never a straight one.</td></tr>
+            <tr><td class="num">9&ndash;12</td><td class="num real">8 strict</td><td><strong>Clap pull-ups.</strong> 5 &times; 3, three minutes rest. Any rep that lands soft ends the exercise for that day.</td></tr>
           </tbody>
         </table>
       </div>
-      <p><strong>Two swaps.</strong> The band Romanian deadlift is gone &mdash; bands give their least tension at the stretched position, which is exactly where hamstrings respond. Single-leg RDLs replace it, and being unilateral they also feed the weaker-side-first protocol. Nordic curl negatives and calf raises are new; calves had no work at all.</p>
-      <p style="color:var(--ink-faint)">This section is an addition. Nothing here came from the original document &mdash; every added exercise is badged in the session view.</p>
+      <p style="margin-top:14px">Weighted pull-ups have their own, higher gate: <strong>10 strict reps</strong>. Loading a pull-up max that is not there yet is precisely how the first version of this program would have handed you elbow tendinopathy.</p>
+    </div>
+
+    <div class="section">
+      <h2>Test sessions</h2>
+      <p>Nothing here is a fixed number. Every prescription resolves as a percentage of a <em>measured</em> max, so a test session genuinely rewrites the four weeks after it rather than just adding a row to a table.</p>
+      <p><strong>Week 0</strong> is the full calibration battery &mdash; eight items, about forty minutes, done fully rested. <strong>Fridays of weeks 4, 8 and 12</strong> are retests that replace the power session: you are already in a consolidation week so you arrive fresh, and testing does not belong on the same day as speed work.</p>
+      <p>Standing rules: same bar, same time of day, same cable weight every time, and film the pull-up set from the front. Change any of those and you are measuring the change, not your progress.</p>
+      <div class="tablewrap" style="margin-top:14px">
+        <table>
+          <thead><tr><th>If your pull-up max is</th><th>Week 1 clusters</th><th>Week 5 EMOM</th><th>Week 9 power</th></tr></thead>
+          <tbody>
+            <tr><td class="num">4</td><td>6 &times; 2</td><td>10 min &times; 2</td><td>locked &rarr; hands-off</td></tr>
+            <tr><td class="num">7</td><td>6 &times; 3</td><td>10 min &times; 3</td><td>locked &rarr; hands-off</td></tr>
+            <tr><td class="num real">10</td><td>6 &times; 5</td><td>10 min &times; 5</td><td>clap pull-ups</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>What the gym adds</h2>
+      <p>This is still a calisthenics program. The gym fills the gaps bodyweight genuinely cannot, and nothing beyond that.</p>
+      <ul class="protocol">
+        <li><span>&rarr;</span><div><strong>Barbell squat and Romanian deadlift.</strong> Low&#39;s own carve-out: legs are strong enough that they need external load to progress properly. This is the one place a barbell is not optional.</div></li>
+        <li><span>&rarr;</span><div><strong>The dip and pull-up belt.</strong> Replaces the backpack, and makes block 3 loading actually workable.</div></li>
+        <li><span>&rarr;</span><div><strong>Lat pulldown and seated cable row.</strong> Pull volume that does not spend the pull-up reps you do not have yet.</div></li>
+        <li><span>&rarr;</span><div><strong>Cable face pulls.</strong> The same objection that killed the band Romanian deadlift in v2: a band gives its least tension exactly where you need the most.</div></li>
+        <li><span>&rarr;</span><div><strong>Hamstring curl machine.</strong> Assistance work, so the Nordics can stay at full range.</div></li>
+      </ul>
+      <p style="margin-top:14px"><strong>Deliberately not added:</strong> barbell bench, machine chest press, barbell row, leg extension &mdash; every lift that would displace a calisthenics movement already doing the same job. Vertical pressing stays pike push-up to handstand push-up. Horizontal pressing stays push-up variations and dips.</p>
     </div>
 
     <div class="section">
@@ -669,13 +902,25 @@ function renderProgram() {
 
 // ─── Balance gauge — the signature ───────────────────────────────────────────
 
+// Every prescription in the program resolves against this. Each field is read
+// independently from the newest entry that actually measured it — the week 4
+// and 8 retests deliberately skip push-ups and calves, and those numbers should
+// keep their last real value rather than silently reverting to the baseline.
+const MAX_FIELDS = ["pullups", "dips", "pushups", "squat60", "calf"];
+
+function measuredMaxes() {
+  const byDate = state.maxes.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+  const out = { fromLog: byDate.length > 0, measuredAt: byDate.length ? byDate[0].date : null };
+  MAX_FIELDS.forEach((f) => {
+    const hit = byDate.find((m) => m[f] != null && m[f] !== "");
+    out[f] = hit ? Number(hit[f]) : ATHLETE.baseline[f];
+    out[f + "Measured"] = !!hit;
+  });
+  return out;
+}
+
 function currentMaxes() {
-  const latest = state.maxes.length ? state.maxes[state.maxes.length - 1] : null;
-  return {
-    pullups: latest && latest.pullups ? Number(latest.pullups) : ATHLETE.baseline.pullups,
-    dips: latest && latest.dips ? Number(latest.dips) : ATHLETE.baseline.dips,
-    fromLog: !!latest,
-  };
+  return measuredMaxes();
 }
 
 function renderGauge() {
@@ -772,16 +1017,19 @@ function renderLog() {
         <label class="field"><span>Pull-ups</span><input type="number" name="pullups" inputmode="numeric" min="0" placeholder="—"></label>
         <label class="field"><span>Dips</span><input type="number" name="dips" inputmode="numeric" min="0" placeholder="—"></label>
         <label class="field"><span>Push-ups</span><input type="number" name="pushups" inputmode="numeric" min="0" placeholder="—"></label>
+        <label class="field"><span>Squats / 60s</span><input type="number" name="squat60" inputmode="numeric" min="0" placeholder="—"></label>
+        <label class="field"><span>Calf raises</span><input type="number" name="calf" inputmode="numeric" min="0" placeholder="—"></label>
       </form>
       <div class="btnrow"><button class="btn btn--primary btn--sm" type="button" data-add-max>Record test</button></div>
       ${maxes.length ? `<div class="tablewrap" style="margin-top:14px">
         <table>
-          <thead><tr><th>Date</th><th>Pull</th><th>Dips</th><th>Push-ups</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Pull</th><th>Dips</th><th>Push-ups</th><th>Sq/60s</th><th></th></tr></thead>
           <tbody>${maxes.map((m, i) => `<tr>
             <td class="num">${fmtDate(m.date)}</td>
             <td class="num real">${esc(m.pullups ?? "–")}</td>
             <td class="num">${esc(m.dips ?? "–")}</td>
             <td class="num">${esc(m.pushups ?? "–")}</td>
+            <td class="num">${esc(m.squat60 ?? "–")}</td>
             <td><button class="btn btn--sm btn--ghost" type="button" data-del-max="${state.maxes.length - 1 - i}" aria-label="Delete test">&times;</button></td>
           </tr>`).join("")}</tbody>
         </table>
@@ -847,8 +1095,10 @@ logView.addEventListener("click", (e) => {
   if (e.target.closest("[data-add-max]")) {
     const f = logView.querySelector("[data-max-form]");
     const get = (n) => { const v = f.elements[n].value; return v === "" ? null : Number(v); };
-    if (get("pullups") == null && get("dips") == null && get("pushups") == null) return;
-    state.maxes.push({ date: f.elements.date.value || todayISO(), pullups: get("pullups"), dips: get("dips"), pushups: get("pushups") });
+    if (MAX_FIELDS.every((k) => get(k) == null)) return;
+    const entry = { date: f.elements.date.value || todayISO() };
+    MAX_FIELDS.forEach((k) => { entry[k] = get(k); });
+    state.maxes.push(entry);
     state.maxes.sort((a, b) => (a.date < b.date ? -1 : 1));
     save(); renderLog();
     return;

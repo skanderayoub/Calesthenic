@@ -22,6 +22,10 @@
   --pull-soft:   rgba(240, 180, 41, 0.14);
   --push:        #54C7D4;
   --push-soft:   rgba(84, 199, 212, 0.14);
+  --legs:        #8FBF6A;
+  --legs-soft:   rgba(143, 191, 106, 0.13);
+  --core:        #A88FD0;
+  --core-soft:   rgba(168, 143, 208, 0.13);
   --alert:       #FF6B4A;
   --alert-soft:  rgba(255, 107, 74, 0.12);
   --done:        #6FD08C;
@@ -55,6 +59,10 @@
     --pull-soft: rgba(143, 90, 0, 0.11);
     --push:      #0F6470;
     --push-soft: rgba(15, 100, 112, 0.11);
+    --legs:      #3F6B22;
+    --legs-soft: rgba(63, 107, 34, 0.10);
+    --core:      #5A4485;
+    --core-soft: rgba(90, 68, 133, 0.10);
     --alert:     #B33314;
     --alert-soft: rgba(179, 51, 20, 0.09);
     --done:      #226B3B;
@@ -76,6 +84,10 @@
   --pull-soft: rgba(143, 90, 0, 0.11);
   --push:      #0F6470;
   --push-soft: rgba(15, 100, 112, 0.11);
+  --legs:      #3F6B22;
+  --legs-soft: rgba(63, 107, 34, 0.10);
+  --core:      #5A4485;
+  --core-soft: rgba(90, 68, 133, 0.10);
   --alert:     #B33314;
   --alert-soft: rgba(179, 51, 20, 0.09);
   --done:      #226B3B;
@@ -213,7 +225,7 @@ a { color: var(--push); }
 
 .ruler__scale {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: 0.8fr repeat(12, 1fr);
   border: 1px solid var(--rule);
   background: var(--surface);
   box-shadow: var(--shadow);
@@ -294,6 +306,19 @@ a { color: var(--push); }
 .day[data-side="push"][aria-pressed="true"] { border-color: var(--push); background: var(--push-soft); }
 .day[data-side="push"][aria-pressed="true"] strong { color: var(--push); }
 .day[data-side="rest"][aria-pressed="true"] { border-color: var(--ink-faint); background: var(--surface-2); }
+/* A mixed day carries both colours: the split rule is the whole point of v3. */
+.day[data-side="mixed"][aria-pressed="true"] {
+  background: var(--surface-2);
+  border-color: transparent;
+  border-image: linear-gradient(105deg, var(--pull) 0 48%, var(--push) 52% 100%) 1;
+}
+.day[data-side="mixed"][aria-pressed="true"] strong {
+  background: linear-gradient(100deg, var(--pull) 0 45%, var(--push) 70% 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.day[data-side="test"][aria-pressed="true"] { border-color: var(--ink); background: var(--surface-2); }
+.day[data-side="test"][aria-pressed="true"] strong { color: var(--ink); }
+.days--one { grid-template-columns: 1fr; }
 .day[data-today="true"]::after {
   content: "today"; font-size: 8px; letter-spacing: 0.1em; color: var(--ink-faint);
 }
@@ -307,12 +332,22 @@ a { color: var(--push); }
 }
 .sessionhead[data-side="pull"] { border-left-color: var(--pull); }
 .sessionhead[data-side="push"] { border-left-color: var(--push); }
+.sessionhead[data-side="mixed"] {
+  border-left-color: transparent;
+  border-image: linear-gradient(var(--pull) 0 50%, var(--push) 50% 100%) 1;
+}
+.sessionhead[data-side="test"] { border-left-style: dashed; border-left-color: var(--ink); }
 
 .sessionhead h2 {
   font-size: 26px; text-transform: uppercase; letter-spacing: 0.04em;
 }
 .sessionhead[data-side="pull"] h2 { color: var(--pull); }
 .sessionhead[data-side="push"] h2 { color: var(--push); }
+.sessionhead[data-side="mixed"] h2 {
+  background: linear-gradient(100deg, var(--pull) 0 35%, var(--push) 75% 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sessionhead[data-side="test"] h2 { color: var(--ink); }
 
 .sessionhead__sub {
   font-family: var(--font-mono); font-size: 11px;
@@ -374,6 +409,21 @@ a { color: var(--push); }
 .card[data-emphasis="true"] .ex__name { font-weight: 700; }
 .card[data-emphasis="true"][data-side="pull"] { border-left: 3px solid var(--pull); }
 .card[data-emphasis="true"][data-side="push"] { border-left: 3px solid var(--push); }
+.card[data-emphasis="true"][data-side="legs"] { border-left: 3px solid var(--legs); }
+.card[data-emphasis="true"][data-side="core"] { border-left: 3px solid var(--core); }
+
+/* Every card carries a hairline of its own side, so a mixed session still reads
+   at a glance as pull / push / legs / core rather than as one undifferentiated list. */
+.card[data-side="pull"] .ex__num { color: var(--pull); }
+.card[data-side="push"] .ex__num { color: var(--push); }
+.card[data-side="legs"] .ex__num { color: var(--legs); }
+.card[data-side="core"] .ex__num { color: var(--core); }
+
+.card[data-skill="true"] { background: var(--surface-2); }
+.card[data-skill="true"] .ex__num { font-size: 13px; opacity: 0.7; }
+
+.card[data-locked="true"] .ex__top .ex__name { color: var(--ink-dim); }
+.card[data-test="true"] .ex__spec { text-transform: none; letter-spacing: 0; font-size: 12px; }
 
 .ex__spec {
   font-family: var(--font-mono); font-size: 13px; font-weight: 500;
@@ -433,6 +483,89 @@ a { color: var(--push); }
   font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--ink-faint);
 }
+
+/* ── Pairs: two non-competing movements alternated ───────────────────── */
+
+.pair {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 8px;
+  margin-bottom: 14px;
+  background: var(--surface-2);
+}
+.pair .card { margin-bottom: 8px; }
+.pair .card:last-child { margin-bottom: 0; }
+
+.pair__head, .solo__head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 2px 4px 8px;
+}
+.pair__tag {
+  color: var(--ink); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 2px 6px;
+}
+.solo[data-power="true"] { margin-bottom: 14px; }
+.solo[data-power="true"] .solo__head { color: var(--pull); }
+
+/* ── Gates: locked movement, with the fallback you do instead ─────────── */
+
+.lock {
+  border: 1px dashed var(--alert);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+.lock__head { margin-bottom: 6px; color: var(--ink); }
+.lock__head strong { color: var(--alert); }
+.lock p { margin: 6px 0 0; }
+.lock__sub {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-faint); margin-top: 10px !important;
+}
+.badge--locked { border-color: var(--alert); color: var(--alert); background: transparent; }
+.badge--gate { border-color: var(--done); color: var(--done); background: transparent; }
+.badge--gym { border-color: var(--rule); color: var(--ink-faint); background: transparent; }
+
+/* ── Test sessions ───────────────────────────────────────────────────── */
+
+.testresult { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.testfield { display: flex; flex-direction: column; gap: 4px; flex: 1 1 130px; }
+.testfield > span {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+}
+.testfield .setinput { width: 100%; }
+
+.recal {
+  border: 1px solid var(--done);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.recal strong { color: var(--done); }
+
+.sessionnote--quiet { color: var(--ink-faint); font-size: 13px; }
+.sessionnote--warn { border-left-color: var(--alert); color: var(--ink-dim); }
+.sessionnote--warn a { color: var(--pull); }
+
+.subhead {
+  font-family: var(--font-display);
+  font-size: 15px; letter-spacing: 0.01em;
+  margin-top: 18px; margin-bottom: 4px;
+}
+
+.ruler__week--test { color: var(--ink-faint); }
+.ruler__week--test[aria-current="true"] { color: var(--ink); }
 
 /* ── Unilateral: weaker side first, stronger side capped ─────────────── */
 
