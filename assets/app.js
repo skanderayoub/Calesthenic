@@ -900,8 +900,8 @@ function renderProgram() {
         <li><span>&rarr;</span><div><strong>The dip and pull-up belt.</strong> Replaces the backpack, and makes block 3 loading actually workable.</div></li>
         <li><span>&rarr;</span><div><strong>Lat pulldown and seated cable row.</strong> Pull volume that does not spend the pull-up reps you do not have yet.</div></li>
         <li><span>&rarr;</span><div><strong>Cable face pulls.</strong> The same objection that killed the band Romanian deadlift in v2: a band gives its least tension exactly where you need the most.</div></li>
-        <li><span>&rarr;</span><div><strong>Hamstring curl machine.</strong> Assistance work, so the Nordics can stay at full range.</div></li>
       </ul>
+      <p style="margin-top:14px"><strong>Legs train twice a week, Monday and Thursday.</strong> With total sets held equal, spreading a muscle across more days does not add growth &mdash; it only uses up recovery your pull work needs. Each leg day covers a squat and a hinge movement, with 72 hours between them.</p>
       <p style="margin-top:14px"><strong>Every one of these has a no-gym swap.</strong> Each card marked <em>Gym</em> in the session view carries its own alternative, collapsed &mdash; one tap and you have the substitution, so a travel week or a closed gym does not become an improvised session. A backpack does most of the work: one litre of water is one kilogram.</p>
       <p style="margin-top:14px"><strong>Deliberately not added:</strong> barbell bench, machine chest press, barbell row, leg extension &mdash; every lift that would displace a calisthenics movement already doing the same job. Vertical pressing stays pike push-up to handstand push-up. Horizontal pressing stays push-up variations and dips.</p>
     </div>

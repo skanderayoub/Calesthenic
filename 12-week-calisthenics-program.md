@@ -49,12 +49,14 @@ Four findings, because they are also the reasons not to "improve" this by adding
 
 | Day | Session | Opens with | Legs |
 |---|---|---|---|
-| **Monday** | STRENGTH | heavy pull-up ↔ dip | back squat |
-| **Tuesday** | VOLUME | lat pulldown ↔ pike push-up | barbell RDL, split squat |
-| **Wednesday** | Rest | optional 10 min handstand + mobility | |
-| **Thursday** | DENSITY | alternating pull/push EMOM | leg press, hamstring curl |
-| **Friday** | POWER | explosive pull-up, unpaired | nordic, pistol |
+| **Monday** | STRENGTH | heavy pull-up ↔ dip | back squat, Nordic negatives, calf raise |
+| **Tuesday** | VOLUME | lat pulldown ↔ pike push-up | — |
+| **Wednesday** | Rest | optional handstand, pistol practice, mobility | |
+| **Thursday** | DENSITY | alternating pull/push EMOM | leg press, Bulgarian split squat, barbell RDL |
+| **Friday** | POWER | explosive pull-up, unpaired | — |
 | **Sat/Sun** | Rest | | |
+
+**Legs train twice a week, Monday and Thursday.** With total sets held equal, training a muscle two, three or four times a week gives about the same growth, so spreading legs across every session only uses up recovery the pull work needs. Each leg day covers a squat and a hinge movement, and the 72 hours between them keep the hamstrings from being loaded two days in a row. Pistols are no longer in a session; practise them on Wednesday if you want the skill.
 
 Every session is mixed. Each is built as **non-competing pairs**: one set of the first movement, 75 seconds, one set of the second, 75 seconds, repeat.
 
@@ -63,7 +65,7 @@ Two structural rules the app enforces:
 - **Skill work goes first**, after the warm-up, while the nervous system is clean. Never as a tired finisher.
 - **Power work is never paired.** A fast rep done tired is just a slow rep. Full rest, and stop the exercise when speed drops rather than grinding the last set out.
 
-Sessions run roughly 50–65 minutes including the warm-up. Monday is the long one; that is the cost of 150-second rests on the heavy work.
+Monday and Thursday carry the leg work and run about 60–75 minutes including the warm-up. Tuesday and Friday run 40–45. Block 3 Mondays are the longest, because the weighted pull-ups, weighted dips and squats all take 150-second rests.
 
 ---
 
@@ -114,7 +116,6 @@ Added, because bodyweight genuinely cannot do it:
 - **Dip and pull-up belt** — replaces the backpack; makes block 3 loading workable.
 - **Lat pulldown and seated cable row** — pull volume that does not spend the pull-up reps you do not have yet.
 - **Cable face pulls** — the same objection that killed v2's band RDL: a band gives least tension exactly where you need most.
-- **Hamstring curl machine** — assistance so Nordics can stay at full range.
 
 Deliberately **not** added: barbell bench, machine chest press, barbell row, leg extension. Anything that would displace a calisthenics movement already doing the same job. Vertical pressing stays pike push-up → HSPU. Horizontal pressing stays push-up variations and dips.
 

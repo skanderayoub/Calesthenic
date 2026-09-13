@@ -103,6 +103,42 @@ Pushing to `main` publishes automatically once Pages is enabled (Settings → Pa
 
 All asset paths are relative, so the site works from a repository subpath.
 
+## Sources
+
+What v3 was built from, grouped by the decision each one informed.
+
+### Session structure — mixing pull and push
+
+- Steven Low, [The Fundamentals of Bodyweight Strength Training](https://stevenlow.org/the-fundamentals-of-bodyweight-strength-training/). The full-body template (2–3 push, 2–3 pull, 2 legs), paired push/pull with 1.5–3.5 min between pairs, and the case for external load on legs specifically.
+- Steven Low, *Overcoming Gravity*, 2nd edition ([preview: contents and chapters 1–3](https://stevenlow.org/wp-content/uploads/2018/09/OG2-preview-TOC-Intro-Ch1-3.pdf)). The broader programming framework behind the article above.
+- [Superset versus traditional resistance training prescriptions: a systematic review and meta-analysis](https://pubmed.ncbi.nlm.nih.gov/39903375/), *Sports Medicine*, 2025. Equal strength and hypertrophy at matched volume, with shorter sessions. The time saving in that research comes from shorter total rest than this program uses — with the rests prescribed here, pairing saves 0–10 minutes a session, not half.
+
+### Pull-up frequency
+
+- [The Fighter Pullup Program Revisited](https://www.strongfirst.com/the-fighter-pullup-program-revisited/), StrongFirst. The frequent, submaximal, never-to-failure principle.
+- [Armstrong Pull-Up Program](https://liftvault.com/programs/bodyweight/armstrong-pull-up-program-spreadsheet/), Lift Vault. Considered and not adopted: a five-day pull-up specialisation program leaves no room for legs or the physique goal.
+- [r/bodyweightfitness Recommended Routine](https://www.reddit.com/r/bodyweightfitness/wiki/kb/recommended_routine/). Same full-body, paired shape at three days a week. Referenced from prior knowledge; the page could not be fetched during research.
+
+### Explosive pull-ups
+
+- [Pull-Up Performance Is Affected Differently by the Muscle Contraction Regimens Practiced during Training among Climbers](https://www.mdpi.com/2306-5354/11/1/85), *Bioengineering*, 2024. Eccentric, isometric and plyometric groups all gained max strength (+2.2% to +5.0%); only the plyometric group increased muscle work (+21.9%).
+- [Best Pull-Up Variations for Explosive Power](https://bullbarfit.com/blogs/q-as/what-are-the-best-pull-up-variations-for-building-explosive-power), BULLBAR. The 5–8 strict-rep prerequisite and the 3–5 × 3–5 prescription. A practitioner blog, not research — a performance statistic it attributes to a 2018 study could not be traced to that study and was not used.
+
+### EMOM and cluster sets
+
+- [Effectiveness of long-term cluster training and traditional resistance training in enhancing maximum strength: a systematic review and meta-analysis](https://pmc.ncbi.nlm.nih.gov/articles/PMC11996837/), 2025.
+- [Cluster sets and traditional sets elicit similar muscular hypertrophy](https://pmc.ncbi.nlm.nih.gov/articles/PMC12174233/), *European Journal of Applied Physiology*, 2025.
+
+### Not from a source
+
+These are judgement calls, and worth knowing as such if you want to change them:
+
+- The percentages every prescription resolves against (45–65% of a measured max)
+- The gate thresholds: 6 strict for hands-off, 8 for clap, 10 for weighted pull-ups — the sources agree on 5–8 before plyometrics; the exact split across stages is mine
+- The test battery, its order, and the retest schedule
+- Every no-gym alternative, including the 12–15 kg backpack ceiling
+- The asymmetry protocol and its 10% / 20% thresholds, carried over from the v2 document
+
 ---
 
 Not medical advice. The program's own warning stands: pain that is sharp, localised, or lasts beyond a few days deserves a physio, not a forum.

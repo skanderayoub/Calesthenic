@@ -35,10 +35,10 @@ export const WARMUP_WARNING =
   "Golfer's elbow (ache on the inside of the elbow) is the injury that ends this stage of training. The warm-up is the cheap insurance.";
 
 export const SPLIT = [
-  { day: "Mon", short: "MON", session: "strength", label: "STRENGTH", side: "mixed", subtitle: "heavy pull + press · squat" },
-  { day: "Tue", short: "TUE", session: "volume", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · hinge" },
-  { day: "Wed", short: "WED", session: null, label: "REST", side: "rest", subtitle: "optional: 10 min handstand + mobility" },
-  { day: "Thu", short: "THU", session: "density", label: "DENSITY", side: "mixed", subtitle: "EMOM · unilateral legs" },
+  { day: "Mon", short: "MON", session: "strength", label: "STRENGTH", side: "mixed", subtitle: "heavy pull + press · squat + nordic" },
+  { day: "Tue", short: "TUE", session: "volume", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · upper body" },
+  { day: "Wed", short: "WED", session: null, label: "REST", side: "rest", subtitle: "optional: handstand, pistol practice, mobility" },
+  { day: "Thu", short: "THU", session: "density", label: "DENSITY", side: "mixed", subtitle: "EMOM · hinge + single-leg" },
   { day: "Fri", short: "FRI", session: "power", label: "POWER", side: "mixed", subtitle: "explosive · skill" },
   { day: "Sat", short: "SAT", session: null, label: "REST", side: "rest", subtitle: "" },
   { day: "Sun", short: "SUN", session: null, label: "REST", side: "rest", subtitle: "" },
@@ -163,10 +163,6 @@ export const HOME_ALTS = {
   legpress: {
     name: "Walking or reverse lunges",
     how: "Backpack on. Long steps, front knee tracking over the toes.",
-  },
-  hamcurl: {
-    name: "Nordic curl negatives",
-    how: "Heels wedged under a sofa or a door frame. This is the harder version of the same job, so cut the range rather than the reps &mdash; lower only as far as you can control, catch with your hands, push back up.",
   },
   calf: {
     name: "Single-leg calf raise off a step",
@@ -302,6 +298,11 @@ const b1 = {
       { id: "kneeraise", name: "Hanging knee raises", sets: 3, reps: "10", rest: 60, log: "reps",
         side: "core", pair: "B" },
 
+      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "3", rest: 120, log: "reps",
+        side: "legs",
+        notes: "Anchor your heels. Lower as slowly as you can, catch yourself with your hands, push back up.",
+        byWeek: { 1: { reps: "3", notes: "Short range only. Hands ready to catch from the very start." }, 2: { reps: "4" }, 3: { reps: "5" }, 4: { sets: 2, reps: "5" } } },
+
       { id: "cablerow", name: "Seated cable row", sets: 3, reps: "10–12", rest: 90, log: "load",
         side: "pull", equipment: "gym",
         notes: "Pull volume that doesn't spend the pull-up reps you don't have yet. One second squeeze at the back." },
@@ -316,7 +317,7 @@ const b1 = {
   },
 
   volume: {
-    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · hinge",
+    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · upper body",
     note: "Higher reps, shorter rests, nothing heavy. This is the session that builds the back width your physique goal actually depends on.",
     exercises: [
       { id: "hswall", name: "Chest-to-wall handstand", sets: 4, reps: "20–30s", rest: 60, log: "sec",
@@ -328,18 +329,8 @@ const b1 = {
         notes: "Leave two reps in reserve. This is where most of your weekly pull volume now lives." },
       { id: "pike", name: "Pike push-ups, feet elevated", sets: 3, reps: "8", rest: 90, log: "reps",
         side: "push", pair: "A" },
-
-      { id: "rdl", name: "Barbell Romanian deadlift", sets: 3, reps: "10", rest: 120, log: "load",
-        side: "legs", pair: "B", equipment: "gym",
-        notes: "Push the hips back, soft knees, bar close. Stop when the hamstring stretch runs out, not when the bar hits the floor.",
-        byWeek: { 1: { reps: "10", notes: "Light. Learn the hinge — this is the movement most likely to be done badly." }, 4: { sets: 2, reps: "10" } } },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, rest: 90, log: "reps",
-        side: "push", pair: "B", rel: rel("dips", 0.4, 4, 10) },
-
-      { id: "bulgarian", name: "Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "reps",
-        side: "legs", unilateral: true, unilateralLabel: "leg",
-        notes: "Bodyweight this block. Add reps before you add load.",
-        byWeek: { 1: { reps: "10" }, 2: { reps: "12" }, 3: { reps: "15" }, 4: { sets: 2, reps: "15" } } },
+        side: "push", rel: rel("dips", 0.4, 4, 10) },
       { id: "sacablerow", name: "Single-arm cable row", sets: 3, reps: "10", rest: 60, log: "reps",
         side: "pull", emphasis: true, unilateral: true, extraWeakSet: true, equipment: "gym" },
 
@@ -350,7 +341,7 @@ const b1 = {
   },
 
   density: {
-    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · unilateral legs",
+    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · hinge + single-leg",
     note: "The EMOM is the whole point of this day. At the top of each minute do the reps, then rest what's left of the minute. If you cannot finish the last minute at the prescribed reps, you started too high — drop one and rebuild.",
     exercises: [
       { id: "lsit", name: "L-sit progression", sets: 4, reps: "max hold", rest: 60, log: "sec",
@@ -375,10 +366,16 @@ const b1 = {
       { id: "widerow", name: "Wide-grip Australian rows", sets: 3, reps: "12", rest: 90, log: "reps",
         side: "pull", pair: "B",
         notes: "Feet elevated, one second pause with the chest at the bar." },
+      { id: "bulgarian", name: "Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "reps",
+        side: "legs", unilateral: true, unilateralLabel: "leg",
+        notes: "Bodyweight this block. Add reps before you add load.",
+        byWeek: { 1: { reps: "10" }, 2: { reps: "12" }, 3: { reps: "15" }, 4: { sets: 2, reps: "15" } } },
 
-      { id: "hamcurl", name: "Seated hamstring curl", sets: 3, reps: "12", rest: 60, log: "load",
+      { id: "rdl", name: "Barbell Romanian deadlift", sets: 3, reps: "10", rest: 120, log: "load",
         side: "legs", pair: "C", equipment: "gym",
-        notes: "Builds toward the Nordics on Friday, which are the harder version of the same job." },
+        notes: "Push the hips back, soft knees, bar close. Stop when the hamstring stretch runs out, not when the bar hits the floor.",
+        byWeek: { 1: { reps: "10", notes: "Light. Learn the hinge — this is the movement most likely to be done badly." }, 4: { sets: 2, reps: "10" } } },
+
       { id: "diamond", name: "Diamond push-ups", sets: 3, rest: 90, log: "reps",
         side: "push", pair: "C", rel: rel("pushups", 0.4, 5, 20) },
 
@@ -408,20 +405,10 @@ const b1 = {
         side: "push", power: true,
         notes: "Hands leave the floor. Land soft, elbows bent, and reset between reps.",
         byWeek: { 1: { reps: "4", notes: "Hands leave the floor even slightly counts. Land soft." }, 4: { sets: 3, reps: "5" } } },
-
-      { id: "pistol", name: "Assisted pistol squat", sets: 3, reps: "6", rest: 90, log: "reps",
-        side: "legs", unilateral: true, unilateralLabel: "leg",
-        notes: "Hold a post or sit to a box. Depth before independence — this is a skill as much as a strength lift.",
-        byWeek: { 1: { reps: "5" }, 2: { reps: "6" }, 3: { reps: "8" }, 4: { sets: 2, reps: "8" } } },
       { id: "archer", name: "Archer push-ups", sets: 3, reps: "6", rest: 90, log: "reps",
         side: "push", emphasis: true, unilateral: true },
-
-      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "3", rest: 120, log: "reps",
-        side: "legs", pair: "D",
-        notes: "Anchor your heels. Lower as slowly as you can, catch yourself with your hands, push back up.",
-        byWeek: { 1: { reps: "3", notes: "Short range only. Hands ready to catch from the very start." }, 2: { reps: "4" }, 3: { reps: "5" }, 4: { sets: 2, reps: "5" } } },
       { id: "t2b", name: "Toes-to-bar", sets: 3, reps: "8", rest: 60, log: "reps",
-        side: "core", pair: "D",
+        side: "core",
         notes: "Knees to chest if the straight-leg version pulls you into an arch." },
     ],
   },
@@ -456,6 +443,11 @@ const b2 = {
       { id: "t2b", name: "Toes-to-bar", sets: 3, reps: "10", rest: 60, log: "reps",
         side: "core", pair: "B" },
 
+      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "5", rest: 120, log: "reps",
+        side: "legs",
+        notes: "Full range by the end of this block — lower all the way before your hands take over.",
+        byWeek: { 5: { reps: "5" }, 6: { reps: "6" }, 7: { sets: 4, reps: "5", notes: "Full range now. Quality over reps." }, 8: { sets: 3, reps: "5" } } },
+
       { id: "cablerow", name: "Seated cable row", sets: 4, reps: "8–10", rest: 90, log: "load",
         side: "pull", pair: "C", equipment: "gym" },
       { id: "pseudo", name: "Pseudo-planche push-ups", sets: 3, reps: "8", rest: 90, log: "reps",
@@ -469,7 +461,7 @@ const b2 = {
   },
 
   volume: {
-    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · hinge",
+    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · upper body",
     exercises: [
       { id: "hswall", name: "Freestanding handstand attempts", sets: 4, reps: "30s", rest: 60, log: "sec",
         side: "push", skill: true,
@@ -480,17 +472,8 @@ const b2 = {
         notes: "Heavier than block 1. Still two in reserve." },
       { id: "pike", name: "Pike push-ups, feet elevated", sets: 4, reps: "10", rest: 90, log: "reps",
         side: "push", pair: "A" },
-
-      { id: "rdl", name: "Barbell Romanian deadlift", sets: 4, reps: "8", rest: 120, log: "load",
-        side: "legs", pair: "B", equipment: "gym",
-        byWeek: { 8: { sets: 2, reps: "8" } } },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, rest: 90, log: "reps",
-        side: "push", pair: "B", rel: rel("dips", 0.45, 5, 12) },
-
-      { id: "bulgarian", name: "Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
-        side: "legs", unilateral: true, unilateralLabel: "leg", equipment: "gym",
-        notes: "Dumbbells. Same cadence as the dips — add weight every two weeks, not every week.",
-        byWeek: { 5: { reps: "10", load: 8 }, 6: { reps: "12", load: 8 }, 7: { reps: "10", load: 12 }, 8: { sets: 2, reps: "10", load: 12 } } },
+        side: "push", rel: rel("dips", 0.45, 5, 12) },
       { id: "sacablerow", name: "Single-arm cable row", sets: 3, reps: "10", rest: 60, log: "load",
         side: "pull", emphasis: true, unilateral: true, extraWeakSet: true, equipment: "gym" },
 
@@ -500,7 +483,7 @@ const b2 = {
   },
 
   density: {
-    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · unilateral legs",
+    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · hinge + single-leg",
     note: "The EMOM is where your pull volume compounds this block. Quality every minute — the method only works because you never approach failure.",
     exercises: [
       { id: "lsit", name: "L-sit progression", sets: 4, reps: "max hold", rest: 60, log: "sec",
@@ -522,9 +505,15 @@ const b2 = {
         side: "legs", pair: "B", equipment: "gym" },
       { id: "widerow", name: "Wide-grip rows, weighted", sets: 4, reps: "10", rest: 90, log: "load",
         side: "pull", pair: "B", equipment: "gym" },
+      { id: "bulgarian", name: "Bulgarian split squats, loaded", sets: 3, reps: "10", rest: 90, log: "load",
+        side: "legs", unilateral: true, unilateralLabel: "leg", equipment: "gym",
+        notes: "Dumbbells. Same cadence as the dips — add weight every two weeks, not every week.",
+        byWeek: { 5: { reps: "10", load: 8 }, 6: { reps: "12", load: 8 }, 7: { reps: "10", load: 12 }, 8: { sets: 2, reps: "10", load: 12 } } },
 
-      { id: "hamcurl", name: "Seated hamstring curl", sets: 3, reps: "10", rest: 60, log: "load",
-        side: "legs", pair: "C", equipment: "gym" },
+      { id: "rdl", name: "Barbell Romanian deadlift", sets: 4, reps: "8", rest: 120, log: "load",
+        side: "legs", pair: "C", equipment: "gym",
+        byWeek: { 8: { sets: 2, reps: "8" } } },
+
       { id: "diamond", name: "Diamond push-ups", sets: 3, rest: 90, log: "reps",
         side: "push", pair: "C", rel: rel("pushups", 0.45, 6, 22) },
 
@@ -552,19 +541,10 @@ const b2 = {
         side: "push", power: true,
         notes: "Your push side is well ahead of your pull side — this is the one place you can be ambitious.",
         byWeek: { 8: { sets: 3, reps: "5" } } },
-
-      { id: "pistol", name: "Assisted pistol squat", sets: 3, reps: "8", rest: 90, log: "reps",
-        side: "legs", unilateral: true, unilateralLabel: "leg",
-        byWeek: { 5: { reps: "8" }, 6: { reps: "10" }, 7: { reps: "10", notes: "Try one unassisted rep per set before the assisted work." }, 8: { sets: 2, reps: "10" } } },
       { id: "archer", name: "Archer push-ups", sets: 3, reps: "8", rest: 90, log: "reps",
         side: "push", emphasis: true, unilateral: true },
-
-      { id: "nordic", name: "Nordic curl negatives", sets: 3, reps: "5", rest: 120, log: "reps",
-        side: "legs", pair: "D",
-        notes: "Full range by the end of this block — lower all the way before your hands take over.",
-        byWeek: { 5: { reps: "5" }, 6: { reps: "6" }, 7: { sets: 4, reps: "5", notes: "Full range now. Quality over reps." }, 8: { sets: 3, reps: "5" } } },
       { id: "t2b", name: "Toes-to-bar", sets: 3, reps: "10", rest: 60, log: "reps",
-        side: "core", pair: "D" },
+        side: "core" },
     ],
   },
 };
@@ -601,6 +581,10 @@ const b3 = {
       { id: "t2b", name: "Weighted toes-to-bar", sets: 3, reps: "8", rest: 60, log: "load",
         side: "core", pair: "B" },
 
+      { id: "nordic", name: "Nordic curl negatives", sets: 4, reps: "5", rest: 120, log: "reps",
+        side: "legs",
+        byWeek: { 9: { sets: 4, reps: "5" }, 10: { sets: 4, reps: "6" }, 11: { sets: 4, reps: "6", notes: "Five seconds down on every rep." }, 12: { sets: 3, reps: "6" } } },
+
       { id: "cablerow", name: "Seated cable row", sets: 4, reps: "8", rest: 90, log: "load",
         side: "pull", pair: "C", equipment: "gym" },
       { id: "pseudo", name: "Pseudo-planche push-ups", sets: 3, reps: "10", rest: 90, log: "reps",
@@ -614,7 +598,7 @@ const b3 = {
   },
 
   volume: {
-    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · hinge",
+    day: "Tue", label: "VOLUME", side: "mixed", subtitle: "hypertrophy · upper body",
     exercises: [
       { id: "hswall", name: "Freestanding handstand", sets: 4, reps: "30s", rest: 60, log: "sec",
         side: "push", skill: true },
@@ -624,17 +608,8 @@ const b3 = {
       { id: "pike", name: "Pike push-ups or wall HSPU", sets: 4, reps: "8", rest: 120, log: "reps",
         side: "push", pair: "A",
         notes: "Switch to wall handstand push-ups if the pike version is comfortable at 10." },
-
-      { id: "rdl", name: "Barbell Romanian deadlift", sets: 4, reps: "8", rest: 120, log: "load",
-        side: "legs", pair: "B", equipment: "gym",
-        byWeek: { 12: { sets: 2, reps: "8" } } },
       { id: "dipseasy", name: "Dips, easy volume", sets: 3, rest: 90, log: "reps",
-        side: "push", pair: "B", rel: rel("dips", 0.45, 6, 14) },
-
-      { id: "bulgarian", name: "Deficit Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "load",
-        side: "legs", unilateral: true, unilateralLabel: "leg", equipment: "gym", emphasis: true,
-        notes: "Front foot on a low step. The deficit buys range once the dumbbells stop getting heavier.",
-        byWeek: { 9: { reps: "10", load: 12 }, 10: { reps: "12", load: 12 }, 11: { reps: "10", load: 16 }, 12: { sets: 2, reps: "10", load: 16 } } },
+        side: "push", rel: rel("dips", 0.45, 6, 14) },
       { id: "sacablerow", name: "Single-arm cable row", sets: 3, reps: "10", rest: 60, log: "load",
         side: "pull", emphasis: true, unilateral: true, extraWeakSet: true, equipment: "gym" },
 
@@ -644,7 +619,7 @@ const b3 = {
   },
 
   density: {
-    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · unilateral legs",
+    day: "Thu", label: "DENSITY", side: "mixed", subtitle: "EMOM · hinge + single-leg",
     exercises: [
       { id: "lsit", name: "Full L-sit", sets: 4, reps: "max hold", rest: 60, log: "sec",
         side: "core", skill: true },
@@ -665,9 +640,15 @@ const b3 = {
         side: "legs", pair: "B", equipment: "gym" },
       { id: "widerow", name: "Wide-grip rows, weighted", sets: 4, reps: "10", rest: 90, log: "load",
         side: "pull", pair: "B", equipment: "gym" },
+      { id: "bulgarian", name: "Deficit Bulgarian split squats", sets: 3, reps: "10", rest: 90, log: "load",
+        side: "legs", unilateral: true, unilateralLabel: "leg", equipment: "gym", emphasis: true,
+        notes: "Front foot on a low step. The deficit buys range once the dumbbells stop getting heavier.",
+        byWeek: { 9: { reps: "10", load: 12 }, 10: { reps: "12", load: 12 }, 11: { reps: "10", load: 16 }, 12: { sets: 2, reps: "10", load: 16 } } },
 
-      { id: "hamcurl", name: "Seated hamstring curl", sets: 3, reps: "10", rest: 60, log: "load",
-        side: "legs", pair: "C", equipment: "gym" },
+      { id: "rdl", name: "Barbell Romanian deadlift", sets: 4, reps: "8", rest: 120, log: "load",
+        side: "legs", pair: "C", equipment: "gym",
+        byWeek: { 12: { sets: 2, reps: "8" } } },
+
       { id: "diamond", name: "Diamond push-ups", sets: 3, rest: 90, log: "reps",
         side: "push", pair: "C", rel: rel("pushups", 0.45, 6, 25) },
 
@@ -694,19 +675,10 @@ const b3 = {
       { id: "plyopush", name: "Clap push-ups, elevated feet", sets: 4, reps: "6", rest: 120, log: "reps",
         side: "push", power: true,
         byWeek: { 12: { sets: 3, reps: "6" } } },
-
-      { id: "pistol", name: "Pistol squat", sets: 3, reps: "6", rest: 120, log: "reps",
-        side: "legs", unilateral: true, unilateralLabel: "leg", emphasis: true,
-        notes: "Unassisted if you have it. Assisted reps after, to finish the set.",
-        byWeek: { 9: { reps: "4" }, 10: { reps: "5" }, 11: { reps: "6" }, 12: { sets: 2, reps: "6" } } },
       { id: "archer", name: "Archer push-ups", sets: 3, reps: "10", rest: 90, log: "reps",
         side: "push", emphasis: true, unilateral: true },
-
-      { id: "nordic", name: "Nordic curl negatives", sets: 4, reps: "5", rest: 120, log: "reps",
-        side: "legs", pair: "D",
-        byWeek: { 9: { sets: 4, reps: "5" }, 10: { sets: 4, reps: "6" }, 11: { sets: 4, reps: "6", notes: "Five seconds down on every rep." }, 12: { sets: 3, reps: "6" } } },
       { id: "t2b", name: "Toes-to-bar", sets: 3, reps: "12", rest: 60, log: "reps",
-        side: "core", pair: "D" },
+        side: "core" },
     ],
   },
 };
